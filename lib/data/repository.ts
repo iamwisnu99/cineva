@@ -1,13 +1,51 @@
 import { Movie, Series, Category, MediaItem } from '@/types/content';
 import { SAMPLE_MOVIES, SAMPLE_SERIES, SAMPLE_CATEGORIES } from './mockData';
+import { 
+  getSupabaseMovies, 
+  getSupabaseSeries, 
+  getSupabaseCategories, 
+  insertSupabaseMovie, 
+  insertSupabaseSeries,
+  updateSupabaseCategorySlugs
+} from './supabaseContent';
 
-// In-memory store (initialized from mock data, can be updated dynamically via admin operations)
-let moviesStore: Movie[] = [...SAMPLE_MOVIES];
-let seriesStore: Series[] = [...SAMPLE_SERIES];
-let categoriesStore: Category[] = [...SAMPLE_CATEGORIES];
+/**
+ * Fetch movies from Supabase and merge with any hardcoded mockData movies
+ */
+export async function getMovies(): Promise<Movie[]> {
+  try {
+    const supabaseMovies = await getSupabaseMovies();
+    if (supabaseMovies !== null) {
+      const slugs = new Set(supabaseMovies.map((m) => m.slug));
+      const hardcodedNonDuplicates = SAMPLE_MOVIES.filter((m) => !slugs.has(m.slug));
+      return [...supabaseMovies, ...hardcodedNonDuplicates];
+    }
+  } catch (err) {
+    console.warn('Repository getMovies Supabase fallback:', err);
+  }
+  return [...SAMPLE_MOVIES];
+}
+
+/**
+ * Fetch series from Supabase and merge with any hardcoded mockData series
+ */
+export async function getSeries(): Promise<Series[]> {
+  try {
+    const supabaseSeries = await getSupabaseSeries();
+    if (supabaseSeries !== null) {
+      const slugs = new Set(supabaseSeries.map((s) => s.slug));
+      const hardcodedNonDuplicates = SAMPLE_SERIES.filter((s) => !slugs.has(s.slug));
+      return [...supabaseSeries, ...hardcodedNonDuplicates];
+    }
+  } catch (err) {
+    console.warn('Repository getSeries Supabase fallback:', err);
+  }
+  return [...SAMPLE_SERIES];
+}
 
 export async function getAllMedia(): Promise<MediaItem[]> {
-  return [...moviesStore, ...seriesStore];
+  const [movies, series] = await Promise.all([getMovies(), getSeries()]);
+  return [...movies, ...series];
 }
 
 export async function getFeaturedMedia(): Promise<MediaItem[]> {
@@ -15,32 +53,34 @@ export async function getFeaturedMedia(): Promise<MediaItem[]> {
   return all.filter((item) => item.featured);
 }
 
-export async function getMovies(): Promise<Movie[]> {
-  return [...moviesStore];
-}
-
-export async function getSeries(): Promise<Series[]> {
-  return [...seriesStore];
-}
-
 export async function getMediaBySlug(slug: string): Promise<MediaItem | null> {
-  const movie = moviesStore.find((m) => m.slug === slug);
-  if (movie) return movie;
-  const series = seriesStore.find((s) => s.slug === slug);
-  if (series) return series;
-  return null;
+  const all = await getAllMedia();
+  return all.find((item) => item.slug === slug) || null;
 }
 
 export async function getMovieBySlug(slug: string): Promise<Movie | null> {
-  return moviesStore.find((m) => m.slug === slug) || null;
+  const movies = await getMovies();
+  return movies.find((m) => m.slug === slug) || null;
 }
 
 export async function getSeriesBySlug(slug: string): Promise<Series | null> {
-  return seriesStore.find((s) => s.slug === slug) || null;
+  const series = await getSeries();
+  return series.find((s) => s.slug === slug) || null;
 }
 
 export async function getCategories(): Promise<Category[]> {
-  return [...categoriesStore]
+  try {
+    const supabaseCats = await getSupabaseCategories();
+    if (supabaseCats !== null && supabaseCats.length > 0) {
+      return [...supabaseCats]
+        .filter((c) => c.visibility)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+    }
+  } catch (err) {
+    console.warn('Repository getCategories Supabase fallback:', err);
+  }
+
+  return [...SAMPLE_CATEGORIES]
     .filter((c) => c.visibility)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
@@ -88,7 +128,6 @@ export async function getRelatedMedia(
 
   return others
     .map((item) => {
-      // Calculate intersection of genres
       const common = item.genres.filter((g) => genres.includes(g)).length;
       return { item, score: common };
     })
@@ -127,7 +166,6 @@ export async function searchMedia(
       (item.type === 'movie' && item.director?.toLowerCase().includes(q)) ||
       (item.type === 'series' && item.creator?.toLowerCase().includes(q));
 
-    // Also match episode titles if series
     const matchEpisode =
       item.type === 'series' &&
       item.seasons?.some((season) =>
@@ -140,19 +178,9 @@ export async function searchMedia(
 
 // Admin mutators
 export async function addOrUpdateMovie(movie: Movie): Promise<void> {
-  const idx = moviesStore.findIndex((m) => m.id === movie.id || m.slug === movie.slug);
-  if (idx >= 0) {
-    moviesStore[idx] = movie;
-  } else {
-    moviesStore.push(movie);
-  }
+  await insertSupabaseMovie(movie);
 }
 
 export async function addOrUpdateSeries(series: Series): Promise<void> {
-  const idx = seriesStore.findIndex((s) => s.id === series.id || s.slug === series.slug);
-  if (idx >= 0) {
-    seriesStore[idx] = series;
-  } else {
-    seriesStore.push(series);
-  }
+  await insertSupabaseSeries(series);
 }

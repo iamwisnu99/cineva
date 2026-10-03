@@ -19,7 +19,9 @@ import {
   Save,
   AlertCircle,
   LogOut,
-  UserCheck
+  UserCheck,
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { Movie, Series, Category } from '@/types/content';
 import { AdminUser } from '@/lib/auth/admin';
@@ -42,16 +44,20 @@ export function AdminStudioClient({
   const [movies, setMovies] = useState<Movie[]>(initialMovies);
   const [seriesList, setSeriesList] = useState<Series[]>(initialSeries);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveNotice, setSaveNotice] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  // New movie form state
+  // New title form state
   const [newTitle, setNewTitle] = useState('');
   const [newSlug, setNewSlug] = useState('');
   const [newType, setNewType] = useState<'movie' | 'series'>('movie');
   const [newDesc, setNewDesc] = useState('');
   const [newYear, setNewYear] = useState('2026');
   const [newDuration, setNewDuration] = useState('95');
-  const [newGenres, setNewGenres] = useState('Sci-Fi, Animation');
+  const [newGenres, setNewGenres] = useState('Sci-Fi, Action, Drama');
   const [newPoster, setNewPoster] = useState('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop');
   const [newBackdrop, setNewBackdrop] = useState('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop');
   const [newVideoUrl, setNewVideoUrl] = useState('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4');
@@ -73,46 +79,164 @@ export function AdminStudioClient({
     }
   };
 
-  const handleCreateTitle = (e: React.FormEvent) => {
+  const handleCreateTitle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
+
+    setIsSaving(true);
+    setErrorMessage('');
 
     const generatedSlug = newSlug.trim() || newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const genresArray = newGenres.split(',').map((g) => g.trim()).filter(Boolean);
 
-    const createdMovie: Movie = {
-      id: `m-${Date.now()}`,
-      type: 'movie',
-      title: newTitle,
-      slug: generatedSlug,
-      description: newDesc || 'An original personal production for Cineva.',
-      releaseYear: parseInt(newYear) || 2026,
-      duration: parseInt(newDuration) || 90,
-      genres: genresArray.length > 0 ? genresArray : ['Sci-Fi'],
-      cast: ['Cineva Ensemble'],
-      director: newDirector || 'Prima Wisnu',
-      rating: 9.0,
-      maturityRating: '13+',
-      languages: ['English', 'Bahasa Indonesia'],
-      posterUrl: newPoster,
-      backdropUrl: newBackdrop,
-      videoUrl: newVideoUrl,
-      subtitles: [
-        { language: 'en', label: 'English', src: '/subtitles/tears-of-steel-en.vtt', default: true },
-        { language: 'id', label: 'Bahasa Indonesia', src: '/subtitles/tears-of-steel-id.vtt' }
-      ],
-      featured: true,
-      trending: true,
-      isOriginal: true,
-      isAiAssisted: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      if (newType === 'movie') {
+        const payload = {
+          title: newTitle.trim(),
+          slug: generatedSlug,
+          description: newDesc || 'Koleksi film sinematik pilihan Cineva.',
+          releaseYear: parseInt(newYear) || 2026,
+          duration: parseInt(newDuration) || 90,
+          genres: genresArray.length > 0 ? genresArray : ['Sci-Fi'],
+          cast: ['Cineva Ensemble'],
+          director: newDirector || adminUser.nama || 'Prima Wisnu',
+          rating: 9.0,
+          maturityRating: '13+',
+          languages: ['Bahasa Indonesia', 'English'],
+          posterUrl: newPoster,
+          backdropUrl: newBackdrop,
+          videoUrl: newVideoUrl,
+          subtitles: [
+            { language: 'id', label: 'Bahasa Indonesia', src: '/subtitles/demo-id.vtt', default: true },
+            { language: 'en', label: 'English', src: '/subtitles/demo-en.vtt' }
+          ],
+          featured: true,
+          trending: true,
+          isOriginal: true,
+        };
 
-    setMovies([createdMovie, ...movies]);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
-    setActiveTab('catalog');
+        const res = await fetch('/api/admin/movies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Gagal menyimpan film ke database Supabase.');
+        }
+
+        setMovies([data.movie, ...movies.filter((m) => m.slug !== data.movie.slug)]);
+        setSaveNotice(`Film "${data.movie.title}" berhasil disimpan permanen ke database Supabase!`);
+      } else {
+        const payload = {
+          title: newTitle.trim(),
+          slug: generatedSlug,
+          description: newDesc || 'Koleksi serial TV pilihan Cineva.',
+          releaseYear: parseInt(newYear) || 2026,
+          genres: genresArray.length > 0 ? genresArray : ['Drama'],
+          cast: ['Cineva Ensemble'],
+          creator: newDirector || adminUser.nama || 'Prima Wisnu',
+          rating: 9.0,
+          maturityRating: '16+',
+          languages: ['Bahasa Indonesia', 'English'],
+          posterUrl: newPoster,
+          backdropUrl: newBackdrop,
+          featured: true,
+          trending: true,
+          isOriginal: true,
+          seasons: [
+            {
+              seasonNumber: 1,
+              title: 'Season 1',
+              episodes: [
+                {
+                  episodeNumber: 1,
+                  title: 'Episode 1',
+                  description: newDesc || 'Episode 1 alur cerita awal.',
+                  thumbnailUrl: newBackdrop,
+                  videoUrl: newVideoUrl,
+                  duration: parseInt(newDuration) || 45,
+                  subtitles: [
+                    { language: 'id', label: 'Bahasa Indonesia', src: '/subtitles/demo-id.vtt', default: true }
+                  ]
+                }
+              ]
+            }
+          ]
+        };
+
+        const res = await fetch('/api/admin/series', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Gagal menyimpan serial ke database Supabase.');
+        }
+
+        setSeriesList([data.series, ...seriesList.filter((s) => s.slug !== data.series.slug)]);
+        setSaveNotice(`Serial TV "${data.series.title}" berhasil disimpan permanen ke database Supabase!`);
+      }
+
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 5000);
+      setNewTitle('');
+      setNewSlug('');
+      setNewDesc('');
+      setActiveTab('catalog');
+      router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Terjadi kesalahan saat menyimpan ke database.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteMovie = async (id: string, title: string) => {
+    if (!confirm(`Hapus film "${title}" secara permanen dari database Supabase?`)) return;
+    setDeletingId(id);
+    setErrorMessage('');
+    try {
+      const res = await fetch(`/api/admin/movies?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Gagal menghapus film.');
+      }
+      setMovies((prev) => prev.filter((m) => m.id !== id));
+      setSaveNotice(`Film "${title}" berhasil dihapus dari database.`);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 4000);
+      router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal menghapus film.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDeleteSeries = async (id: string, title: string) => {
+    if (!confirm(`Hapus serial "${title}" secara permanen dari database Supabase?`)) return;
+    setDeletingId(id);
+    setErrorMessage('');
+    try {
+      const res = await fetch(`/api/admin/series?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Gagal menghapus serial.');
+      }
+      setSeriesList((prev) => prev.filter((s) => s.id !== id));
+      setSaveNotice(`Serial "${title}" berhasil dihapus dari database.`);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 4000);
+      router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal menghapus serial.');
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -172,7 +296,7 @@ export function AdminStudioClient({
         </div>
         <div className="px-4 py-3 rounded-2xl bg-[#0f131d] border border-[#232b3e]">
           <span className="text-zinc-500 block text-xs">Database Table</span>
-          <span className="text-emerald-400 text-xs font-bold block mt-1">public.admin_users</span>
+          <span className="text-emerald-400 text-xs font-bold block mt-1">public.movies / series</span>
         </div>
       </div>
 
@@ -228,9 +352,16 @@ export function AdminStudioClient({
       </div>
 
       {savedSuccess && (
-        <div className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center space-x-2 animate-in fade-in">
-          <Check className="w-4 h-4 text-amber-400" />
-          <span>Action successfully applied to Cineva platform!</span>
+        <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center space-x-2 animate-in fade-in">
+          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{saveNotice || 'Perubahan berhasil disimpan ke database Supabase!'}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-bold flex items-center space-x-2 animate-in fade-in">
+          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
@@ -272,21 +403,33 @@ export function AdminStudioClient({
                         {m.subtitles.length} Tracks (WebVTT)
                       </span>
                     </td>
-                    <td className="p-4 text-right space-x-2">
+                    <td className="p-4 text-right space-x-1.5 whitespace-nowrap">
                       <Link
                         href={`/movie/${m.slug}`}
-                        className="p-1.5 rounded-lg bg-[#161c2b] text-zinc-300 hover:text-white inline-block"
-                        title="View detail page"
+                        className="p-1.5 rounded-lg bg-[#161c2b] text-zinc-300 hover:text-white inline-block transition-colors"
+                        title="Lihat halaman film"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                       <Link
                         href={`/watch/${m.slug}`}
-                        className="p-1.5 rounded-lg bg-amber-400 text-black hover:bg-amber-300 inline-block font-bold"
-                        title="Play in theater"
+                        className="p-1.5 rounded-lg bg-amber-400 text-black hover:bg-amber-300 inline-block font-bold transition-colors"
+                        title="Tonton di player"
                       >
                         <Play className="w-3.5 h-3.5 fill-black" />
                       </Link>
+                      <button
+                        onClick={() => handleDeleteMovie(m.id, m.title)}
+                        disabled={deletingId === m.id}
+                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 inline-block transition-colors disabled:opacity-50"
+                        title="Hapus film dari database Supabase"
+                      >
+                        {deletingId === m.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -314,21 +457,33 @@ export function AdminStudioClient({
                         {s.subtitles.length} Tracks (WebVTT)
                       </span>
                     </td>
-                    <td className="p-4 text-right space-x-2">
+                    <td className="p-4 text-right space-x-1.5 whitespace-nowrap">
                       <Link
                         href={`/series/${s.slug}`}
-                        className="p-1.5 rounded-lg bg-[#161c2b] text-zinc-300 hover:text-white inline-block"
-                        title="View detail page"
+                        className="p-1.5 rounded-lg bg-[#161c2b] text-zinc-300 hover:text-white inline-block transition-colors"
+                        title="Lihat halaman serial"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                       <Link
                         href={`/watch/${s.slug}`}
-                        className="p-1.5 rounded-lg bg-amber-400 text-black hover:bg-amber-300 inline-block font-bold"
-                        title="Play in theater"
+                        className="p-1.5 rounded-lg bg-amber-400 text-black hover:bg-amber-300 inline-block font-bold transition-colors"
+                        title="Tonton di player"
                       >
                         <Play className="w-3.5 h-3.5 fill-black" />
                       </Link>
+                      <button
+                        onClick={() => handleDeleteSeries(s.id, s.title)}
+                        disabled={deletingId === s.id}
+                        className="p-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 inline-block transition-colors disabled:opacity-50"
+                        title="Hapus serial dari database Supabase"
+                      >
+                        {deletingId === s.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -341,22 +496,52 @@ export function AdminStudioClient({
       {/* Tab 2: Publish New Title */}
       {activeTab === 'new-title' && (
         <form onSubmit={handleCreateTitle} className="mt-8 max-w-3xl space-y-6 bg-[#0a0d14] p-6 sm:p-8 rounded-2xl border border-[#1b2234]">
-          <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Publish New Film to Cineva Catalog</span>
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1b2234]">
+            <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span>Publish Judul Baru ke Database Supabase</span>
+            </h2>
+
+            {/* Type selector toggle */}
+            <div className="flex items-center space-x-2 bg-[#0f131d] p-1 rounded-xl border border-[#232b3e]">
+              <button
+                type="button"
+                onClick={() => setNewType('movie')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                  newType === 'movie'
+                    ? 'bg-amber-400 text-black shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Film className="w-3.5 h-3.5" />
+                <span>Film (Movie)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewType('series')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                  newType === 'series'
+                    ? 'bg-amber-400 text-black shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Tv className="w-3.5 h-3.5" />
+                <span>Serial TV (Series)</span>
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-                Title *
+                Judul {newType === 'movie' ? 'Film' : 'Serial'} *
               </label>
               <input
                 type="text"
                 required
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
-                placeholder="e.g. Celestial Orbit: Dawn"
+                placeholder={newType === 'movie' ? 'e.g. Celestial Orbit' : 'e.g. Chronicles of Eldoria'}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f131d] border border-[#232b3e] text-white text-xs focus:outline-none focus:border-amber-400"
               />
             </div>
@@ -369,14 +554,14 @@ export function AdminStudioClient({
                 type="text"
                 value={newSlug}
                 onChange={(e) => setNewSlug(e.target.value)}
-                placeholder="celestial-orbit-dawn (auto-generated if empty)"
+                placeholder="auto-generated jika dikosongkan"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f131d] border border-[#232b3e] text-white text-xs focus:outline-none focus:border-amber-400 font-mono"
               />
             </div>
 
             <div>
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-                Release Year
+                Tahun Rilis
               </label>
               <input
                 type="number"
@@ -388,7 +573,7 @@ export function AdminStudioClient({
 
             <div>
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-                Runtime (Minutes)
+                {newType === 'movie' ? 'Durasi Film (Menit)' : 'Durasi Episode (Menit)'}
               </label>
               <input
                 type="number"
@@ -401,56 +586,56 @@ export function AdminStudioClient({
 
           <div>
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-              Genres (Comma Separated)
+              Genres (Pisahkan dengan koma)
             </label>
             <input
               type="text"
               value={newGenres}
               onChange={(e) => setNewGenres(e.target.value)}
-              placeholder="Sci-Fi, Cyberpunk, Drama"
+              placeholder="Action, Sci-Fi, Drama"
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f131d] border border-[#232b3e] text-white text-xs focus:outline-none focus:border-amber-400"
             />
           </div>
 
           <div>
             <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-              Synopsis & Description
+              Sinopsis & Deskripsi Cerita
             </label>
             <textarea
               rows={3}
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
-              placeholder="Provide a cinematic description of the story, premise, and characters..."
+              placeholder="Deskripsi cerita sinematik yang menarik..."
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f131d] border border-[#232b3e] text-white text-xs focus:outline-none focus:border-amber-400 leading-relaxed"
             />
           </div>
 
           <div className="space-y-4 pt-2 border-t border-[#1b2234]">
             <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-              Direct External Media & Artwork Links
+              Tautan Media Video & Artwork Poster
             </h3>
 
             <div>
               <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">
-                Video Direct Stream URL (MP4 / HLS CDN) *
+                {newType === 'movie' ? 'Video Stream URL (MP4 / HLS CDN) *' : 'Video Stream Episode 1 (MP4 / HLS CDN) *'}
               </label>
               <input
                 type="url"
                 required
                 value={newVideoUrl}
                 onChange={(e) => setNewVideoUrl(e.target.value)}
-                placeholder="https://your-r2-or-cdn.example.com/videos/movie.mp4"
+                placeholder="https://your-cdn-or-r2.com/videos/content.mp4"
                 className="w-full px-3.5 py-2.5 rounded-xl bg-[#0f131d] border border-[#232b3e] text-white text-xs focus:outline-none focus:border-amber-400 font-mono"
               />
               <p className="text-[11px] text-zinc-500 mt-1">
-                Per DETAILS.md: Browser plays directly from external CDN/R2. Vercel never proxies video files.
+                Player memutar langsung dari CDN/R2 eksternal tanpa proxy bandwidth Vercel.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">
-                  Poster Image URL
+                  Poster Image URL (Vertikal ~2:3)
                 </label>
                 <input
                   type="url"
@@ -462,7 +647,7 @@ export function AdminStudioClient({
 
               <div>
                 <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block mb-1">
-                  Backdrop Banner URL
+                  Backdrop Banner URL (Landscape 16:9)
                 </label>
                 <input
                   type="url"
@@ -480,14 +665,24 @@ export function AdminStudioClient({
               onClick={() => setActiveTab('catalog')}
               className="px-5 py-2.5 rounded-full text-xs font-semibold text-zinc-400 hover:text-white"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black shadow-lg shadow-amber-500/20 flex items-center space-x-1.5"
+              disabled={isSaving}
+              className="px-6 py-2.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black shadow-lg shadow-amber-500/20 flex items-center space-x-1.5 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
             >
-              <Save className="w-3.5 h-3.5" />
-              <span>Publish Title to Catalog</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Menyimpan ke Supabase...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Publish ke Supabase Catalog</span>
+                </>
+              )}
             </button>
           </div>
         </form>
