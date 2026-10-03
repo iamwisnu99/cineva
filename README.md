@@ -208,9 +208,9 @@ CREATE POLICY "Disallow anon client access" ON public.admin_users FOR ALL USING 
 
 INSERT INTO public.admin_users (nama, email, password, role)
 VALUES (
-  'name',
+  'Your Name',
   'youremail@gmail.com',
-  '$2b$10$mXfUuTQV6yuFgjwgCoo9PeRfQCx5XcZWlsQoKPcFqg5wv3G5Kbfqq',
+  'yourhashedpassword',
   'superadmin'
 )
 ON CONFLICT (email) DO NOTHING;

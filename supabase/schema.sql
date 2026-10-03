@@ -29,9 +29,9 @@ CREATE POLICY "Disallow anon client access"
 -- Hash: $2b$10$mXfUuTQV6yuFgjwgCoo9PeRfQCx5XcZWlsQoKPcFqg5wv3G5Kbfqq
 INSERT INTO public.admin_users (nama, email, password, role)
 VALUES (
-  'Prima Wisnu',
-  'primawisnu99@gmail.com',
-  '$2b$10$mXfUuTQV6yuFgjwgCoo9PeRfQCx5XcZWlsQoKPcFqg5wv3G5Kbfqq',
+  'Your Name',
+  'youremail@gmail.com',
+  'yourhashedpassword',
   'superadmin'
 )
 ON CONFLICT (email) 
