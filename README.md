@@ -134,27 +134,28 @@ npm -v
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-username/cineva.git
    cd cineva
    ```
-
 2. Install dependencies:
+
    ```bash
    npm install
    ```
-
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
-
 4. Launch the local development server:
+
    ```bash
    npm run dev
    ```
-
 5. Open your browser and navigate to:
+
    ```text
    http://localhost:3000
    ```
@@ -207,8 +208,8 @@ CREATE POLICY "Disallow anon client access" ON public.admin_users FOR ALL USING 
 
 INSERT INTO public.admin_users (nama, email, password, role)
 VALUES (
-  'Prima Wisnu',
-  'primawisnu99@gmail.com',
+  'name',
+  'youremail@gmail.com',
   '$2b$10$mXfUuTQV6yuFgjwgCoo9PeRfQCx5XcZWlsQoKPcFqg5wv3G5Kbfqq',
   'superadmin'
 )
