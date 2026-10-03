@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   Film, 
   Tv, 
@@ -13,14 +13,25 @@ import {
   X, 
   ShieldCheck, 
   User, 
-  Sparkles 
+  Sparkles,
+  LogIn,
+  LogOut,
+  CheckCircle2
 } from 'lucide-react';
 import { useWatchlist } from '@/lib/hooks/useWatchlist';
 
+interface CurrentViewer {
+  nama: string;
+  email: string;
+}
+
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<CurrentViewer | null>(null);
   const { count: watchlistCount } = useWatchlist();
 
   useEffect(() => {
@@ -30,6 +41,36 @@ export function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Fetch current viewer session
+  const checkSession = () => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.user) {
+          setCurrentUser({ nama: data.user.nama, email: data.user.email });
+        } else {
+          setCurrentUser(null);
+        }
+      })
+      .catch(() => setCurrentUser(null));
+  };
+
+  useEffect(() => {
+    checkSession();
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setCurrentUser(null);
+      setProfileDropdownOpen(false);
+      router.push('/');
+      router.refresh();
+    } catch {
+      // ignore
+    }
+  };
 
   const navLinks = [
     { label: 'Home', href: '/', icon: Film },
@@ -93,7 +134,7 @@ export function Navbar() {
           </nav>
         </div>
 
-        {/* Right Actions: Search, Admin, Profile */}
+        {/* Right Actions: Search, Viewer Profile/Login */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Quick Search */}
           <Link
@@ -104,27 +145,69 @@ export function Navbar() {
             <Search className="w-5 h-5 text-zinc-300 group-hover:text-amber-400 transition-colors" />
           </Link>
 
-          {/* Admin shortcut button */}
-          <Link
-            href="/admin"
-            title="Content Studio / Admin"
-            className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-zinc-300 bg-[#0f131d] border border-[#232b3e] hover:border-amber-500/50 hover:text-white transition-all"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-            <span>Studio</span>
-          </Link>
+          {/* Viewer Account: Login Button OR Profile Dropdown */}
+          {currentUser ? (
+            <div className="relative">
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                aria-label="Akun Penonton"
+                className="flex items-center space-x-2 p-1 pl-2 rounded-full bg-[#0f131d] border border-[#232b3e] hover:border-amber-400/50 transition-all focus:outline-none"
+              >
+                <span className="text-xs font-bold text-white hidden sm:block max-w-[100px] truncate">
+                  {currentUser.nama.split(' ')[0]}
+                </span>
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-amber-500 to-amber-600 text-black flex items-center justify-center text-xs font-black shadow-md">
+                  {currentUser.nama.charAt(0).toUpperCase()}
+                </div>
+              </button>
 
-          {/* User Profile Avatar */}
-          <div className="relative group">
-            <button
-              aria-label="User Account"
-              className="flex items-center space-x-2 p-1 rounded-full border border-transparent hover:border-[#232b3e] focus:outline-none transition-all"
-            >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-700 to-zinc-800 border border-zinc-600 flex items-center justify-center text-xs font-bold text-amber-400 shadow-md">
-                <User className="w-4 h-4 text-zinc-200" />
-              </div>
-            </button>
-          </div>
+              {/* Profile Dropdown Menu */}
+              {profileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#0f131d] border border-[#232b3e] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="p-3 border-b border-[#1b2234]">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-bold text-white truncate block">
+                        {currentUser.nama}
+                      </span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    </div>
+                    <span className="text-[11px] text-zinc-400 truncate block mt-0.5">
+                      {currentUser.email}
+                    </span>
+                  </div>
+
+                  <div className="p-1 space-y-1">
+                    <Link
+                      href="/watchlist"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/5"
+                    >
+                      <Bookmark className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Watchlist Saya</span>
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 text-left transition-colors"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Keluar (Logout)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Link
+                href="/login"
+                className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black shadow-md shadow-amber-500/20 transition-all hover:scale-105 active:scale-95"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Masuk</span>
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -168,15 +251,34 @@ export function Navbar() {
               );
             })}
 
-            <div className="pt-2 border-t border-[#1b2234] flex flex-col space-y-2">
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Cineva Studio (Admin)</span>
-              </Link>
+            {/* Mobile Auth actions */}
+            <div className="pt-3 border-t border-[#1b2234] flex flex-col space-y-2">
+              {currentUser ? (
+                <div className="p-3 rounded-xl bg-[#0f131d] border border-[#232b3e] space-y-2">
+                  <div className="text-xs text-zinc-300">
+                    Masuk sebagai: <strong className="text-white">{currentUser.nama}</strong> ({currentUser.email})
+                  </div>
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full py-2 rounded-lg bg-red-500/10 text-red-400 text-xs font-bold flex items-center justify-center space-x-1.5"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Keluar Akun</span>
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold text-black bg-amber-400"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Masuk / Daftar Akun</span>
+                </Link>
+              )}
             </div>
           </nav>
         </div>

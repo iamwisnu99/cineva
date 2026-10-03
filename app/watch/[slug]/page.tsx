@@ -1,8 +1,9 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getMediaBySlug } from '@/lib/data/repository';
 import { getVideoProvider } from '@/lib/video/provider';
+import { getViewerSession } from '@/lib/auth/user';
 import { VideoPlayer } from '@/components/player/VideoPlayer';
 import { Episode } from '@/types/content';
 
@@ -40,6 +41,14 @@ export async function generateMetadata({ params, searchParams }: WatchPageProps)
 export default async function WatchPage({ params, searchParams }: WatchPageProps) {
   const { slug } = await params;
   const sp = await searchParams;
+
+  // MANDATORY REQUIREMENT: Viewer must be logged in before watching
+  const viewer = await getViewerSession();
+  if (!viewer) {
+    const targetUrl = `/watch/${slug}${sp.episodeId ? `?episodeId=${sp.episodeId}` : ''}`;
+    redirect(`/login?redirect=${encodeURIComponent(targetUrl)}`);
+  }
+
   const item = await getMediaBySlug(slug);
 
   if (!item) {
