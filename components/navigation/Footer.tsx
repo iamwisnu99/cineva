@@ -9,17 +9,17 @@ export function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         {/* Brand statement */}
         <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <div className="relative w-7 h-7 flex items-center justify-center">
+          <div className="flex items-center space-x-3">
+            <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
               <Image
                 src="/cineva_logo.png"
                 alt="Cineva Logo"
-                width={28}
-                height={28}
+                width={40}
+                height={40}
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-xl font-black text-white tracking-tight">CINEVA</span>
+            <span className="text-2xl font-black text-white tracking-tight leading-none">CINEVA</span>
           </div>
           <p className="text-xs text-amber-400 font-semibold tracking-wider uppercase">
             Stream with Comfortable

@@ -52,8 +52,8 @@ export function HeroSection({ items }: HeroSectionProps) {
         <div className="absolute inset-0 bg-radial-at-c from-transparent via-black/20 to-black/60 z-10" />
       </div>
 
-      {/* Hero Content Information */}
-      <div className="relative z-20 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-14 sm:pb-20">
+      {/* Hero Content Information (Edge-to-edge consistent with Rails) */}
+      <div className="relative z-20 h-full w-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-14 sm:pb-20">
         <div className="max-w-2xl space-y-4">
           {/* Badge & Type indicator */}
           <div className="flex items-center space-x-2.5">
@@ -153,7 +153,7 @@ export function HeroSection({ items }: HeroSectionProps) {
 
       {/* Hero Carousel Navigation Pill Controls */}
       {items.length > 1 && (
-        <div className="absolute bottom-6 right-4 sm:right-8 z-30 flex items-center space-x-2 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+        <div className="absolute bottom-6 right-4 sm:right-6 lg:right-8 z-30 flex items-center space-x-2 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
           <button
             onClick={() => setCurrentIndex((prev) => (prev - 1 + items.length) % items.length)}
             aria-label="Previous hero banner"

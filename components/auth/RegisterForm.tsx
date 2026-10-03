@@ -171,14 +171,14 @@ export function RegisterForm() {
         {/* Brand header */}
         <div className="text-center space-y-2 mb-6">
           <Link href="/" className="inline-block group">
-            <div className="relative w-16 h-16 flex items-center justify-center mx-auto group-hover:scale-105 transition-transform">
+            <div className="relative w-20 h-20 flex items-center justify-center mx-auto group-hover:scale-105 transition-transform">
               <Image
                 src="/cineva_logo.png"
                 alt="Cineva Logo"
-                width={64}
-                height={64}
+                width={80}
+                height={80}
                 priority
-                className="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(245,158,11,0.15)]"
+                className="w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(245,158,11,0.2)]"
               />
             </div>
           </Link>

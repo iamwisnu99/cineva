@@ -37,8 +37,9 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 10);
     };
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -83,34 +84,25 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         isScrolled
-          ? 'bg-[#07080b]/95 backdrop-blur-md border-b border-[#1b2234] shadow-2xl py-3'
-          : 'bg-gradient-to-b from-[#07080b]/90 via-[#07080b]/40 to-transparent py-4'
+          ? 'bg-[#07080b] border-b border-[#1f273b] shadow-2xl shadow-black/80 py-3'
+          : 'bg-[#07080b] border-b border-transparent shadow-none py-4'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand & Wordmark */}
-        <div className="flex items-center space-x-8">
-          <Link href="/" className="group flex items-center space-x-2.5 focus:outline-none">
-            <div className="relative w-8 h-8 flex items-center justify-center group-hover:scale-105 transition-transform">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        {/* Brand Logo Only (Clean & Premium) */}
+        <div className="flex items-center space-x-6 sm:space-x-8">
+          <Link href="/" aria-label="Cineva Home" className="group flex items-center focus:outline-none py-1">
+            <div className="relative h-11 sm:h-13 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Image
                 src="/cineva_logo.png"
-                alt="Cineva Logo"
-                width={32}
-                height={32}
+                alt="Cineva"
+                width={80}
+                height={70}
                 priority
-                className="w-full h-full object-contain"
+                className="h-10 sm:h-12 w-auto object-contain"
               />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center">
-                CINEVA
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ml-1 inline-block animate-pulse"></span>
-              </span>
-              <span className="text-[9px] uppercase tracking-widest text-zinc-400 font-medium -mt-1 hidden sm:block">
-                Stream with Comfortable
-              </span>
             </div>
           </Link>
 
