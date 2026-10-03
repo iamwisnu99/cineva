@@ -59,7 +59,7 @@ function generateOtpEmailTemplate(nama: string, otpCode: string): string {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td align="center" style="width: 48px; height: 48px;">
-                    <img src="cid:cinevalogo" width="48" height="48" alt="Cineva Logo" style="display: block; width: 48px; height: 48px; border-radius: 12px; background-color: #000000; border: 0;" />
+                    <img src="cid:cinevalogo" width="48" height="48" alt="Cineva Logo" style="display: block; width: 48px; height: 48px; border: 0; object-fit: contain;" />
                   </td>
                   <td style="padding-left: 14px; text-align: left;">
                     <div style="font-size: 24px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; line-height: 1;">
@@ -151,7 +151,7 @@ export async function sendOtpEmail({ to, nama, otpCode }: SendOtpParams): Promis
 
   try {
     const fromAddress = process.env.GMAIL_USER?.trim();
-    const logoFilePath = path.join(process.cwd(), 'public', 'favicon-96x96.png');
+    const logoFilePath = path.join(process.cwd(), 'public', 'cineva_logo.png');
     const attachments = fs.existsSync(logoFilePath)
       ? [
           {

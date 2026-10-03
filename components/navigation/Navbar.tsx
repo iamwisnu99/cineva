@@ -93,9 +93,9 @@ export function Navbar() {
         {/* Brand & Wordmark */}
         <div className="flex items-center space-x-8">
           <Link href="/" className="group flex items-center space-x-2.5 focus:outline-none">
-            <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-amber-500/10 group-hover:scale-105 transition-transform bg-black">
+            <div className="relative w-8 h-8 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Image
-                src="/favicon-96x96.png"
+                src="/cineva_logo.png"
                 alt="Cineva Logo"
                 width={32}
                 height={32}

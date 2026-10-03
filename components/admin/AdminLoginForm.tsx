@@ -54,14 +54,14 @@ export function AdminLoginForm() {
 
         {/* Brand header */}
         <div className="text-center space-y-3 mb-8">
-          <div className="relative w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center mx-auto shadow-xl shadow-amber-500/10 bg-black">
+          <div className="relative w-16 h-16 flex items-center justify-center mx-auto">
             <Image
-              src="/favicon-96x96.png"
+              src="/cineva_logo.png"
               alt="Cineva Logo"
-              width={56}
-              height={56}
+              width={64}
+              height={64}
               priority
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(245,158,11,0.15)]"
             />
           </div>
           <div>

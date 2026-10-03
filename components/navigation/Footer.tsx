@@ -10,9 +10,9 @@ export function Footer() {
         {/* Brand statement */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <div className="relative w-7 h-7 rounded-md overflow-hidden flex items-center justify-center shadow-md bg-black">
+            <div className="relative w-7 h-7 flex items-center justify-center">
               <Image
-                src="/favicon-96x96.png"
+                src="/cineva_logo.png"
                 alt="Cineva Logo"
                 width={28}
                 height={28}
