@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getAllGenres, getAllMedia } from '@/lib/data/repository';
 import { Compass, Film, Tv, Sparkles, ChevronRight } from 'lucide-react';
+import { EmptyCatalogState } from '@/components/common/EmptyCatalogState';
 
 export const metadata: Metadata = {
   title: 'Genres & Collections — Cineva',
@@ -30,6 +31,14 @@ const GENRE_IMAGES: Record<string, string> = {
 export default async function GenresPage() {
   const genres = await getAllGenres();
   const allMedia = await getAllMedia();
+
+  if (genres.length === 0) {
+    return (
+      <div className="pt-24 pb-20">
+        <EmptyCatalogState type="genres" />
+      </div>
+    );
+  }
 
   const genreCounts: Record<string, number> = {};
   genres.forEach((g) => {

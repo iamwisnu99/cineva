@@ -4,25 +4,36 @@ import React, { useState, useMemo } from 'react';
 import { Search as SearchIcon, X, Film, Tv, Sparkles, Filter } from 'lucide-react';
 import { MediaItem } from '@/types/content';
 import { MediaCard } from '@/components/cards/MediaCard';
+import { EmptyCatalogState } from '@/components/common/EmptyCatalogState';
 
 interface SearchClientProps {
   initialMedia: MediaItem[];
 }
 
 const POPULAR_SEARCH_SUGGESTIONS = [
-  'The Last Signal',
-  'Chronicles of Veyra',
   'Sci-Fi',
-  'Echoes of Aether',
   'Animation',
-  'Cyberpunk',
-  'Kaelen',
-  'Neon',
+  'Action',
+  'Drama',
+  'Fantasy',
+  'Mystery',
 ];
 
 export function SearchClient({ initialMedia }: SearchClientProps) {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'movie' | 'series'>('all');
+
+  if (initialMedia.length === 0) {
+    return (
+      <div className="pt-24 pb-20">
+        <EmptyCatalogState
+          type="all"
+          title="Pencarian Belum Tersedia"
+          description="Katalog konten masih kosong sehingga belum ada film atau serial TV yang dapat dicari. Tambahkan data film atau serial TV di lib/data/mockData.ts terlebih dahulu."
+        />
+      </div>
+    );
+  }
 
   const filteredResults = useMemo(() => {
     let list = initialMedia;

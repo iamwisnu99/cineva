@@ -2,11 +2,23 @@ import React from 'react';
 import { HeroSection } from '@/components/hero/HeroSection';
 import { ContentRail } from '@/components/rails/ContentRail';
 import { ContinueWatchingRail } from '@/components/rails/ContinueWatchingRail';
-import { getFeaturedMedia, getCategoryWithMedia } from '@/lib/data/repository';
+import { EmptyCatalogState } from '@/components/common/EmptyCatalogState';
+import { getFeaturedMedia, getCategoryWithMedia, getAllMedia } from '@/lib/data/repository';
 
 export default async function HomePage() {
+  const allMedia = await getAllMedia();
   const featuredItems = await getFeaturedMedia();
   const categoryRails = await getCategoryWithMedia();
+
+  const hasMedia = allMedia.length > 0;
+
+  if (!hasMedia) {
+    return (
+      <div className="pt-24 pb-20">
+        <EmptyCatalogState type="all" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative pb-16">

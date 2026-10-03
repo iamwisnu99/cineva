@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Movie } from '@/types/content';
 import { MediaCard } from '@/components/cards/MediaCard';
 import { Film, Filter, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { EmptyCatalogState } from '@/components/common/EmptyCatalogState';
 
 interface MovieCatalogClientProps {
   initialMovies: Movie[];
@@ -13,6 +14,14 @@ interface MovieCatalogClientProps {
 export function MovieCatalogClient({ initialMovies, genres }: MovieCatalogClientProps) {
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'trending' | 'latest' | 'rating'>('trending');
+
+  if (initialMovies.length === 0) {
+    return (
+      <div className="pt-24 pb-16">
+        <EmptyCatalogState type="movies" />
+      </div>
+    );
+  }
 
   const filteredMovies = useMemo(() => {
     let result = [...initialMovies];

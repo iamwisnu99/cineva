@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Series } from '@/types/content';
 import { MediaCard } from '@/components/cards/MediaCard';
 import { Tv, SlidersHorizontal } from 'lucide-react';
+import { EmptyCatalogState } from '@/components/common/EmptyCatalogState';
 
 interface SeriesCatalogClientProps {
   initialSeries: Series[];
@@ -13,6 +14,14 @@ interface SeriesCatalogClientProps {
 export function SeriesCatalogClient({ initialSeries, genres }: SeriesCatalogClientProps) {
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'trending' | 'latest' | 'rating'>('trending');
+
+  if (initialSeries.length === 0) {
+    return (
+      <div className="pt-24 pb-16">
+        <EmptyCatalogState type="series" />
+      </div>
+    );
+  }
 
   const filteredSeries = useMemo(() => {
     let result = [...initialSeries];
