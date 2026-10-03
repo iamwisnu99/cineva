@@ -5,9 +5,9 @@ import { Film, Shield, Server, Compass, Heart } from 'lucide-react';
 export function Footer() {
   return (
     <footer className="mt-20 border-t border-[#1b2234] bg-[#050608] text-zinc-400 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         {/* Brand statement */}
-        <div className="md:col-span-1 space-y-3">
+        <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md">
               <span className="text-[#07080b] font-black text-sm">C</span>
@@ -66,23 +66,6 @@ export function Footer() {
               <span>Adaptive HTML5 & Fullscreen Controls</span>
             </li>
           </ul>
-        </div>
-
-        {/* Production & Administration */}
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wider">Cineva Studio</h4>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Manage titles, episodes, video CDN keys, and dynamic genre rails via the studio control center.
-          </p>
-          <div>
-            <Link
-              href="/admin"
-              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-amber-300 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all"
-            >
-              <span>Open Content Studio</span>
-              <span>→</span>
-            </Link>
-          </div>
         </div>
       </div>
 
