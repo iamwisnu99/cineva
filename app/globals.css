@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07080b;
+  --surface-base: #0a0d14;
+  --surface-card: #0f131d;
+  --surface-elevated: #161c2b;
+  --surface-border: #232b3e;
+  --foreground: #f8fafc;
+  --foreground-muted: #94a3b8;
+  --foreground-subtle: #64748b;
+  --cineva-accent: #f59e0b;
+  --cineva-accent-hover: #d97706;
+  --cineva-accent-glow: rgba(245, 158, 11, 0.2);
+  --cineva-red: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface-base: var(--surface-base);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-border: var(--surface-border);
+  --color-cineva-accent: var(--cineva-accent);
+  --color-cineva-accent-hover: var(--cineva-accent-hover);
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100%;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+/* Custom Sleek Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07080b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2638;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Hide scrollbar for clean horizontal carousel rails */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Cinematic Vignette & Backdrop Gradients */
+.cinematic-vignette {
+  background: radial-gradient(circle at center, transparent 30%, rgba(7, 8, 11, 0.8) 100%);
+}
+
+.hero-gradient {
+  background: linear-gradient(
+    180deg,
+    rgba(7, 8, 11, 0.1) 0%,
+    rgba(7, 8, 11, 0.4) 40%,
+    rgba(7, 8, 11, 0.85) 75%,
+    #07080b 100%
+  );
+}
+
+.hero-side-gradient {
+  background: linear-gradient(
+    90deg,
+    #07080b 0%,
+    rgba(7, 8, 11, 0.8) 35%,
+    rgba(7, 8, 11, 0.2) 70%,
+    transparent 100%
+  );
+}
+
+/* Video Player Subtitle styling */
+::cue {
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  line-height: 1.4;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  padding: 0.2em 0.6em;
+  border-radius: 4px;
+}
