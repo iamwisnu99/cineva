@@ -29,7 +29,7 @@ export function SearchClient({ initialMedia }: SearchClientProps) {
         <EmptyCatalogState
           type="all"
           title="Pencarian Belum Tersedia"
-          description="Katalog konten masih kosong sehingga belum ada film atau serial TV yang dapat dicari. Tambahkan data film atau serial TV di lib/data/mockData.ts terlebih dahulu."
+          description="Saat ini belum ada film atau serial TV dalam katalog untuk dicari. Silakan kembali lagi nanti."
         />
       </div>
     );

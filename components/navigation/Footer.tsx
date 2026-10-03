@@ -25,7 +25,7 @@ export function Footer() {
             Stream with Comfortable
           </p>
           <p className="text-xs text-zinc-400 leading-relaxed">
-            The dedicated premiere platform for original films, AI-assisted animations, episodic series, and experimental cinematic projects.
+            The dedicated premiere platform for original films, episodic series, and breathtaking cinematic projects.
           </p>
         </div>
 
