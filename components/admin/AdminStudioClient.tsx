@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
   Film, 
@@ -16,25 +17,32 @@ import {
   Settings2, 
   Sparkles,
   Save,
-  AlertCircle
+  AlertCircle,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { Movie, Series, Category } from '@/types/content';
+import { AdminUser } from '@/lib/auth/admin';
 
 interface AdminStudioClientProps {
+  adminUser: AdminUser;
   initialMovies: Movie[];
   initialSeries: Series[];
   initialCategories: Category[];
 }
 
 export function AdminStudioClient({
+  adminUser,
   initialMovies,
   initialSeries,
   initialCategories,
 }: AdminStudioClientProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'catalog' | 'new-title' | 'providers' | 'categories'>('catalog');
   const [movies, setMovies] = useState<Movie[]>(initialMovies);
   const [seriesList, setSeriesList] = useState<Series[]>(initialSeries);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // New movie form state
   const [newTitle, setNewTitle] = useState('');
@@ -47,12 +55,23 @@ export function AdminStudioClient({
   const [newPoster, setNewPoster] = useState('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=800&auto=format&fit=crop');
   const [newBackdrop, setNewBackdrop] = useState('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop');
   const [newVideoUrl, setNewVideoUrl] = useState('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4');
-  const [newDirector, setNewDirector] = useState('Personal Studio');
+  const [newDirector, setNewDirector] = useState(adminUser.nama || 'Prima Wisnu');
 
   // Video Provider Settings
   const [selectedProvider, setSelectedProvider] = useState<'cdn' | 'r2' | 'bunny' | 'gdrive'>('cdn');
   const [cdnBaseUrl, setCdnBaseUrl] = useState('https://stream.cineva.local/cdn');
   const [subtitleCdnUrl, setSubtitleCdnUrl] = useState('https://subtitles.cineva.local');
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await fetch('/api/admin/auth', { method: 'DELETE' });
+      router.push('/admin/login');
+      router.refresh();
+    } catch {
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleCreateTitle = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +90,7 @@ export function AdminStudioClient({
       duration: parseInt(newDuration) || 90,
       genres: genresArray.length > 0 ? genresArray : ['Sci-Fi'],
       cast: ['Cineva Ensemble'],
-      director: newDirector || 'Original Director',
+      director: newDirector || 'Prima Wisnu',
       rating: 9.0,
       maturityRating: '13+',
       languages: ['English', 'Bahasa Indonesia'],
@@ -103,7 +122,7 @@ export function AdminStudioClient({
         <div>
           <div className="flex items-center space-x-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
             <ShieldCheck className="w-4 h-4" />
-            <span>Cineva Studio • Content & CDN Architecture</span>
+            <span>Cineva Studio • Authenticated Admin</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
             Production Control Center
@@ -113,25 +132,52 @@ export function AdminStudioClient({
           </p>
         </div>
 
-        {/* Stats summary */}
-        <div className="flex items-center space-x-4 text-xs font-medium">
-          <div className="px-3.5 py-2 rounded-xl bg-[#0f131d] border border-[#232b3e]">
-            <span className="text-zinc-500 block">Total Movies</span>
-            <span className="text-white text-base font-bold">{movies.length}</span>
+        {/* Admin Profile & Logout action */}
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <div className="flex items-center space-x-2.5 px-3.5 py-2 rounded-xl bg-[#0f131d] border border-[#232b3e]">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              <UserCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-white font-bold block">{adminUser.nama}</span>
+              <span className="text-zinc-500 text-[10px] block">{adminUser.email}</span>
+            </div>
           </div>
-          <div className="px-3.5 py-2 rounded-xl bg-[#0f131d] border border-[#232b3e]">
-            <span className="text-zinc-500 block">Total Series</span>
-            <span className="text-white text-base font-bold">{seriesList.length}</span>
-          </div>
-          <div className="px-3.5 py-2 rounded-xl bg-[#0f131d] border border-[#232b3e]">
-            <span className="text-zinc-500 block">Rails</span>
-            <span className="text-amber-400 text-base font-bold">{initialCategories.length}</span>
-          </div>
+
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center space-x-1.5 px-3.5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 font-bold transition-colors disabled:opacity-50"
+            title="Keluar dari sesi admin"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>{isLoggingOut ? 'Keluar...' : 'Logout'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Stats summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+        <div className="px-4 py-3 rounded-2xl bg-[#0f131d] border border-[#232b3e]">
+          <span className="text-zinc-500 block text-xs">Total Movies</span>
+          <span className="text-white text-xl font-black">{movies.length}</span>
+        </div>
+        <div className="px-4 py-3 rounded-2xl bg-[#0f131d] border border-[#232b3e]">
+          <span className="text-zinc-500 block text-xs">Total Series</span>
+          <span className="text-white text-xl font-black">{seriesList.length}</span>
+        </div>
+        <div className="px-4 py-3 rounded-2xl bg-[#0f131d] border border-[#232b3e]">
+          <span className="text-zinc-500 block text-xs">Category Rails</span>
+          <span className="text-amber-400 text-xl font-black">{initialCategories.length}</span>
+        </div>
+        <div className="px-4 py-3 rounded-2xl bg-[#0f131d] border border-[#232b3e]">
+          <span className="text-zinc-500 block text-xs">Database Table</span>
+          <span className="text-emerald-400 text-xs font-bold block mt-1">public.admin_users</span>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center space-x-2 border-b border-[#1b2234] pt-6 pb-4 overflow-x-auto hide-scrollbar">
+      <div className="flex items-center space-x-2 border-b border-[#1b2234] pt-8 pb-4 overflow-x-auto hide-scrollbar">
         <button
           onClick={() => setActiveTab('catalog')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 whitespace-nowrap ${
