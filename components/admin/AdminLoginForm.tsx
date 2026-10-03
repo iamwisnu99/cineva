@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, Lock, Mail, Eye, EyeOff, Sparkles, AlertCircle, Database, CheckCircle2 } from 'lucide-react';
 
@@ -53,8 +54,15 @@ export function AdminLoginForm() {
 
         {/* Brand header */}
         <div className="text-center space-y-3 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/25">
-            <span className="text-[#07080b] font-black text-2xl tracking-tighter">C</span>
+          <div className="relative w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center mx-auto shadow-xl shadow-amber-500/10 bg-black">
+            <Image
+              src="/favicon-96x96.png"
+              alt="Cineva Logo"
+              width={56}
+              height={56}
+              priority
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight flex items-center justify-center space-x-2">

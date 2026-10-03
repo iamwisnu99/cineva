@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import path from 'path';
+import fs from 'fs';
 
 interface SendOtpParams {
   to: string;
@@ -27,7 +29,8 @@ function createTransporter() {
 }
 
 /**
- * Generates high-end modern cinematic HTML email template
+ * Generates high-end modern cinematic HTML email template without any emojis
+ * and utilizing the same Cineva favicon logo.
  */
 function generateOtpEmailTemplate(nama: string, otpCode: string): string {
   return `
@@ -55,14 +58,14 @@ function generateOtpEmailTemplate(nama: string, otpCode: string): string {
             <td align="center" style="padding: 40px 30px 20px 30px;">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
-                  <td align="center" style="width: 44px; height: 44px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; font-weight: 900; font-size: 22px; color: #07080b; line-height: 44px;">
-                    C
+                  <td align="center" style="width: 48px; height: 48px;">
+                    <img src="cid:cinevalogo" width="48" height="48" alt="Cineva Logo" style="display: block; width: 48px; height: 48px; border-radius: 12px; background-color: #000000; border: 0;" />
                   </td>
-                  <td style="padding-left: 12px; text-align: left;">
-                    <div style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; line-height: 1;">
+                  <td style="padding-left: 14px; text-align: left;">
+                    <div style="font-size: 24px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; line-height: 1;">
                       CINEVA<span style="display: inline-block; width: 6px; height: 6px; background-color: #f59e0b; border-radius: 50%; margin-left: 4px;"></span>
                     </div>
-                    <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; font-weight: 600; margin-top: 3px;">
+                    <div style="font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #94a3b8; font-weight: 600; margin-top: 4px;">
                       Stream with Comfortable
                     </div>
                   </td>
@@ -88,9 +91,9 @@ function generateOtpEmailTemplate(nama: string, otpCode: string): string {
                 </div>
               </div>
 
-              <!-- Expiry Note -->
-              <p style="font-size: 12px; color: #64748b; margin: 15px 0 0 0; line-height: 1.5;">
-                ⏱️ Kode ini berlaku selama <strong style="color: #cbd5e1;">10 menit</strong>. Jika Anda tidak pernah mendaftar di Cineva, Anda dapat mengabaikan email ini dengan aman.
+              <!-- Expiry Note (Emoji-free) -->
+              <p style="font-size: 12px; color: #64748b; margin: 15px 0 0 0; line-height: 1.6;">
+                Kode ini berlaku selama <strong style="color: #cbd5e1;">10 menit</strong>. Jika Anda tidak pernah mendaftar di Cineva, Anda dapat mengabaikan email ini dengan aman.
               </p>
             </td>
           </tr>
@@ -102,11 +105,11 @@ function generateOtpEmailTemplate(nama: string, otpCode: string): string {
             </td>
           </tr>
 
-          <!-- Security Notice -->
+          <!-- Security Notice (Emoji-free) -->
           <tr>
-            <td style="padding: 20px 40px; background-color: #0b0e16; text-align: center;">
-              <p style="font-size: 11px; color: #64748b; line-height: 1.5; margin: 0;">
-                🛡️ Jangan pernah memberitahukan kode verifikasi ini kepada siapa pun, termasuk pihak yang mengatasnamakan Cineva.
+            <td style="padding: 18px 40px; background-color: #0b0e16; text-align: center;">
+              <p style="font-size: 11px; color: #64748b; line-height: 1.6; margin: 0;">
+                <span style="color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Keamanan:</span> Jangan pernah memberitahukan kode verifikasi ini kepada siapa pun, termasuk pihak yang mengatasnamakan Cineva.
               </p>
             </td>
           </tr>
@@ -148,12 +151,24 @@ export async function sendOtpEmail({ to, nama, otpCode }: SendOtpParams): Promis
 
   try {
     const fromAddress = process.env.GMAIL_USER?.trim();
+    const logoFilePath = path.join(process.cwd(), 'public', 'favicon-96x96.png');
+    const attachments = fs.existsSync(logoFilePath)
+      ? [
+          {
+            filename: 'cineva-logo.png',
+            path: logoFilePath,
+            cid: 'cinevalogo',
+          },
+        ]
+      : [];
+
     await transporter.sendMail({
       from: `"Cineva Streaming" <${fromAddress}>`,
       to,
       subject: `${otpCode} adalah Kode Verifikasi Pendaftaran Cineva Anda`,
-      text: `Halo ${nama},\n\nKode verifikasi pendaftaran Cineva Anda adalah: ${otpCode}\n\nKode ini berlaku selama 10 menit.\nJangan berikan kode ini kepada siapa pun.`,
+      text: `Halo ${nama},\n\nKode verifikasi pendaftaran Cineva Anda adalah: ${otpCode}\n\nKode ini berlaku selama 10 menit.\nKeamanan: Jangan berikan kode ini kepada siapa pun.`,
       html: generateOtpEmailTemplate(nama, otpCode),
+      attachments,
     });
 
     return { success: true };

@@ -26,6 +26,18 @@ export const metadata: Metadata = {
     'Stream with Comfortable',
   ],
   authors: [{ name: 'Cineva Studios' }],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'Cineva — Stream with Comfortable',
     description: 'Premiere streaming platform for original films and series.',

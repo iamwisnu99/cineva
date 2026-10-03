@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   User, 
@@ -170,8 +171,15 @@ export function RegisterForm() {
         {/* Brand header */}
         <div className="text-center space-y-2 mb-6">
           <Link href="/" className="inline-block group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform">
-              <span className="text-[#07080b] font-black text-2xl tracking-tighter">C</span>
+            <div className="relative w-14 h-14 rounded-2xl overflow-hidden flex items-center justify-center mx-auto shadow-xl shadow-amber-500/10 group-hover:scale-105 transition-transform bg-black">
+              <Image
+                src="/favicon-96x96.png"
+                alt="Cineva Logo"
+                width={56}
+                height={56}
+                priority
+                className="w-full h-full object-contain"
+              />
             </div>
           </Link>
           <div>

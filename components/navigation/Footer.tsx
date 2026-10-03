@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Film, Shield, Server, Compass, Heart } from 'lucide-react';
 
 export function Footer() {
@@ -9,8 +10,14 @@ export function Footer() {
         {/* Brand statement */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md">
-              <span className="text-[#07080b] font-black text-sm">C</span>
+            <div className="relative w-7 h-7 rounded-md overflow-hidden flex items-center justify-center shadow-md bg-black">
+              <Image
+                src="/favicon-96x96.png"
+                alt="Cineva Logo"
+                width={28}
+                height={28}
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="text-xl font-black text-white tracking-tight">CINEVA</span>
           </div>

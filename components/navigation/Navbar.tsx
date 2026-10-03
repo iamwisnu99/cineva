@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   Film, 
@@ -92,8 +93,15 @@ export function Navbar() {
         {/* Brand & Wordmark */}
         <div className="flex items-center space-x-8">
           <Link href="/" className="group flex items-center space-x-2.5 focus:outline-none">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <span className="text-[#07080b] font-black text-lg tracking-tighter">C</span>
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-amber-500/10 group-hover:scale-105 transition-transform bg-black">
+              <Image
+                src="/favicon-96x96.png"
+                alt="Cineva Logo"
+                width={32}
+                height={32}
+                priority
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center">
