@@ -5,16 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
-  Film, 
-  Tv, 
   Search, 
   Bookmark, 
-  Compass, 
   Menu, 
   X, 
-  ShieldCheck, 
-  User, 
-  Sparkles,
   LogIn,
   LogOut,
   CheckCircle2
@@ -75,11 +69,11 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { label: 'Home', href: '/', icon: Film },
-    { label: 'Movies', href: '/movies', icon: Film },
-    { label: 'Series', href: '/series', icon: Tv },
-    { label: 'Genres', href: '/genres', icon: Compass },
-    { label: 'Watchlist', href: '/watchlist', icon: Bookmark, badge: watchlistCount },
+    { label: 'Home', href: '/' },
+    { label: 'Movies', href: '/movies' },
+    { label: 'Series', href: '/series' },
+    { label: 'Genres', href: '/genres' },
+    { label: 'Watchlist', href: '/watchlist', badge: watchlistCount },
   ];
 
   return (
@@ -90,59 +84,57 @@ export function Navbar() {
           : 'bg-[#07080b] border-b border-transparent shadow-none py-4'
       }`}
     >
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Logo Only (Clean & Premium) */}
-        <div className="flex items-center space-x-6 sm:space-x-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
+        {/* Left: Brand Logo Only */}
+        <div className="flex items-center">
           <Link href="/" aria-label="Cineva Home" className="group flex items-center focus:outline-none py-1">
-            <div className="relative h-11 sm:h-13 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="relative h-11 sm:h-12 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Image
                 src="/cineva_logo.png"
                 alt="Cineva"
                 width={80}
                 height={70}
                 priority
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-10 sm:h-11 w-auto object-contain"
               />
             </div>
           </Link>
-
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              const Icon = link.icon;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 flex items-center space-x-1.5 ${
-                    isActive
-                      ? 'text-white bg-[#161c2b] shadow-inner shadow-black/40'
-                      : 'text-zinc-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-zinc-400'}`} />
-                  <span>{link.label}</span>
-                  {link.badge !== undefined && link.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-amber-400 text-black">
-                      {link.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
+        {/* Center: Desktop Nav Links (Minimalist, No Icons, Centered in Navbar) */}
+        <nav className="hidden md:flex items-center space-x-1 lg:space-x-1.5 absolute left-1/2 -translate-x-1/2">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 flex items-center ${
+                  isActive
+                    ? 'text-white bg-white/10 font-semibold shadow-sm backdrop-blur-sm'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <span>{link.label}</span>
+                {link.badge !== undefined && link.badge > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-amber-400 text-black">
+                    {link.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
         {/* Right Actions: Search, Viewer Profile/Login */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-3">
           {/* Quick Search */}
           <Link
             href="/search"
             aria-label="Search Cineva"
-            className="p-2 rounded-full text-zinc-300 hover:text-white hover:bg-[#161c2b] transition-colors relative group"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-colors relative group"
           >
-            <Search className="w-5 h-5 text-zinc-300 group-hover:text-amber-400 transition-colors" />
+            <Search className="w-4 h-4 text-zinc-300 group-hover:text-amber-400 transition-colors" />
           </Link>
 
           {/* Viewer Account: Login Button OR Profile Dropdown */}
@@ -198,24 +190,21 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center space-x-2">
-              <Link
-                href="/login"
-                className="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs font-bold bg-amber-400 hover:bg-amber-300 text-black shadow-md shadow-amber-500/20 transition-all hover:scale-105 active:scale-95"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Masuk</span>
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center h-9 px-5 rounded-full text-xs sm:text-sm font-semibold text-black bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-md shadow-amber-500/20 hover:shadow-amber-500/35 transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+            >
+              <span>Masuk</span>
+            </Link>
           )}
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-zinc-300 hover:text-white hover:bg-[#161c2b] focus:outline-none"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 focus:outline-none transition-colors"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -226,7 +215,6 @@ export function Navbar() {
           <nav className="flex flex-col space-y-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
-              const Icon = link.icon;
               return (
                 <Link
                   key={link.href}
@@ -238,10 +226,7 @@ export function Navbar() {
                       : 'text-zinc-300 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : 'text-zinc-400'}`} />
-                    <span>{link.label}</span>
-                  </div>
+                  <span>{link.label}</span>
                   {link.badge !== undefined && link.badge > 0 && (
                     <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-400 text-black">
                       {link.badge}
@@ -273,7 +258,7 @@ export function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-sm font-bold text-black bg-amber-400"
+                  className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-full text-sm font-semibold text-black bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-md transition-all active:scale-95"
                 >
                   <LogIn className="w-4 h-4" />
                   <span>Masuk / Daftar Akun</span>

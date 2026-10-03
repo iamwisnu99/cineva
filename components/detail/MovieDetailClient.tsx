@@ -97,11 +97,6 @@ export function MovieDetailClient({ movie, relatedMovies }: MovieDetailClientPro
                   <span>Cineva Original</span>
                 </span>
               )}
-              {movie.isAiAssisted && (
-                <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-white/10 text-zinc-300 border border-white/10">
-                  AI Enhanced
-                </span>
-              )}
               <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-[#161c2b] text-amber-400 border border-[#232b3e]">
                 {movie.maturityRating}
               </span>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Plus, Check, Info, Volume2, VolumeX, Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Play, Plus, Check, Info, Volume2, VolumeX, ChevronRight, ChevronLeft } from 'lucide-react';
 import { MediaItem } from '@/types/content';
 import { useWatchlist } from '@/lib/hooks/useWatchlist';
 
@@ -55,24 +55,6 @@ export function HeroSection({ items }: HeroSectionProps) {
       {/* Hero Content Information (Edge-to-edge consistent with Rails) */}
       <div className="relative z-20 h-full w-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-14 sm:pb-20">
         <div className="max-w-2xl space-y-4">
-          {/* Badge & Type indicator */}
-          <div className="flex items-center space-x-2.5">
-            {currentItem.isOriginal && (
-              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-amber-500 text-black shadow-lg shadow-amber-500/20">
-                <Sparkles className="w-3 h-3 fill-black" />
-                <span>Cineva Original</span>
-              </span>
-            )}
-            {currentItem.isAiAssisted && (
-              <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-zinc-300 border border-white/10 backdrop-blur-sm">
-                AI Enhanced
-              </span>
-            )}
-            <span className="text-xs uppercase font-semibold tracking-wider text-amber-400">
-              {currentItem.type === 'movie' ? 'Feature Film' : 'Original Series'}
-            </span>
-          </div>
-
           {/* Title */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] drop-shadow-md">
             {currentItem.title}
